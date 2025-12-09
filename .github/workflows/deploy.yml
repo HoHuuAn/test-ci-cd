@@ -17,8 +17,8 @@ jobs:
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SERVER_PRODUCTION_SSH_KEY  }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          echo "${{ secrets.SERVER_PRODUCTION_SSH_KEY  }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
 
       - name: Test SSH Connection
         run: |
@@ -26,7 +26,7 @@ jobs:
           # Configure SSH for faster connection
           cat >> ~/.ssh/config << 'EOF'
           Host ${{ secrets.SERVER_PRODUCTION_HOST }}
-            IdentityFile ~/.ssh/id_rsa
+            IdentityFile ~/.ssh/id_ed25519
             StrictHostKeyChecking no
             UserKnownHostsFile /dev/null
             ConnectTimeout 30
@@ -40,4 +40,4 @@ jobs:
       - name: Cleanup
         if: always()
         run: |
-          rm -f ~/.ssh/id_rsa
+          rm -f ~/.ssh/id_ed25519
