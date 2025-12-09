@@ -17,19 +17,8 @@ jobs:
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SERVER_PRODUCTION_SSH_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          # Verify key format and type
-          echo "Key starts with:"
-          head -n 1 ~/.ssh/id_ed25519
-          echo "Key ends with:"
-          tail -n 1 ~/.ssh/id_ed25519
-          echo "Key type:"
-          ssh-keygen -l -f ~/.ssh/id_ed25519 || echo "Unable to read key"
-          # Show runner IP
-          echo "Runner IP address:"
-          curl -s https://api.ipify.org
-          echo ""
+          echo "${{ secrets.SERVER_PRODUCTION_SSH_KEY  }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
 
       - name: Test SSH Connection
         run: |
@@ -37,7 +26,7 @@ jobs:
           # Configure SSH for faster connection
           cat >> ~/.ssh/config << 'EOF'
           Host ${{ secrets.SERVER_PRODUCTION_HOST }}
-            IdentityFile ~/.ssh/id_ed25519
+            IdentityFile ~/.ssh/id_rsa
             StrictHostKeyChecking no
             UserKnownHostsFile /dev/null
             ConnectTimeout 30
@@ -46,9 +35,9 @@ jobs:
             TCPKeepAlive yes
           EOF
           # Try SSH
-          ssh -v ${{ secrets.SERVER_PRODUCTION_USER }}@${{ secrets.SERVER_PRODUCTION_HOST }} 'echo "✓ SSH Connection successful!" && whoami && pwd'
+          ssh -vvv -o StrictHostKeyChecking=no ${{ secrets.SERVER_PRODUCTION_USER }}@${{ secrets.SERVER_PRODUCTION_HOST }} 'echo "✓ SSH Connection successful!" && whoami && pwd'
 
       - name: Cleanup
         if: always()
         run: |
-          rm -f ~/.ssh/id_ed25519
+          rm -f ~/.ssh/id_rsa
