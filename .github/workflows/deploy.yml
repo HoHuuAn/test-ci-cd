@@ -15,15 +15,15 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SERVER_PRODUCTION_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.SERVER_PRODUCTION_HOST }} >> ~/.ssh/known_hosts
+        if: github.ref == 'refs/heads/main'
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SERVER_PRODUCTION_SSH_KEY }}
 
       - name: Test SSH Connection
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.SERVER_PRODUCTION_USER }}@${{ secrets.SERVER_PRODUCTION_HOST }} "echo 'SSH connection successful!' && hostname && date" 
+          echo "Testing SSH connection..."
+          ssh -vvv -o StrictHostKeyChecking=no ${{ secrets.SERVER_PRODUCTION_USER }}@${{ secrets.SERVER_PRODUCTION_HOST }} 'echo "✓ SSH Connection successful!" && whoami && pwd'
 
       - name: Cleanup
         if: always()
