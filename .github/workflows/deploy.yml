@@ -33,6 +33,7 @@ jobs:
             ServerAliveInterval 10
             ServerAliveCountMax 3
             TCPKeepAlive yes
+            KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256
           EOF
           # Try SSH
           ssh -vvv -o StrictHostKeyChecking=no ${{ secrets.SERVER_PRODUCTION_USER }}@${{ secrets.SERVER_PRODUCTION_HOST }} 'echo "✓ SSH Connection successful!" && whoami && pwd'
